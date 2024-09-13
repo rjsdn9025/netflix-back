@@ -1,0 +1,50 @@
+name: Build Front
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    # 1. 소스 코드를 체크아웃하는 단계
+    - name: Checkout source code
+      uses: actions/checkout@v2
+
+    # 2. AWS 자격 증명을 설정하는 단계
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ap-northeast-2
+
+    # 3. Amazon ECR에 로그인하는 단계
+    - name: Login to Amazon ECR
+      id: login-ecr
+      uses: aws-actions/amazon-ecr-login@v1
+
+    # 4. 이미지 태그를 생성하는 단계 (커밋 SHA를 사용)
+    - name: Get image tag (version)
+      id: image
+      run: |
+        VERSION=$(echo ${{ github.sha }} | cut -c1-8)
+        echo VERSION=$VERSION
+        echo "::set-output name=version::$VERSION"
+
+    # 5. Docker 이미지를 빌드하고 ECR에 푸시하는 단계
+    - name: Build, tag, and push image to Amazon ECR
+      id: image-info
+      env:
+        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        ECR_REPOSITORY: netflix-back
+        IMAGE_TAG: ${{ steps.image.outputs.version }}
+      run: |
+        echo "::set-output name=ecr_repository::$ECR_REPOSITORY"
+        echo "::set-output name=image_tag::$IMAGE_TAG"
+        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+        docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+
+
