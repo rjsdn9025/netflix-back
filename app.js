@@ -19,9 +19,9 @@ const userRouter = require('./routes/user');
 const favoritesRouter = require('./routes/favorites');
 
 // 라우터 사용
-app.use('/api/movies', moviesRouter);  // 영화 관련 API 경로
-app.use('/api/user', userRouter);      // 사용자 관련 API 경로
-app.use('/api/favorites', favoritesRouter); // 찜하기 관련 API 경로
+app.use('/movies', moviesRouter);  // 영화 관련 API 경로
+app.use('/user', userRouter);      // 사용자 관련 API 경로
+app.use('/favorites', favoritesRouter); // 찜하기 관련 API 경로
 
 // 기본 경로 테스트
 app.get('/', (req, res) => {
@@ -29,7 +29,7 @@ app.get('/', (req, res) => {
 });
 
 // Express 서버에 헬스 체크 경로 추가
-app.get('/api/health', (req, res) => {
+app.get('/health', (req, res) => {
   res.status(200).send('Healthy');
 });
 
