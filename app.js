@@ -19,7 +19,7 @@ const userRouter = require('./routes/user');
 const favoritesRouter = require('./routes/favorites');
 
 // 라우터 사용
-app.use('/api/movies', moviesRouter);  // 영화 관련 API 경로
+app.use('/api/movies', moviesRouter);  // 영화 관련 API 경
 app.use('/api/user', userRouter);      // 사용자 관련 API 경로
 app.use('/api/favorites', favoritesRouter); // 찜하기 관련 API 경로
 
