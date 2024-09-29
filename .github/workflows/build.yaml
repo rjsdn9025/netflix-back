@@ -48,36 +48,34 @@ jobs:
         docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
     # 6. Helm 리포지토리를 체크아웃하는 단계
-      - name: Checkout helm repository
-        uses: actions/checkout@v3
-        with:
-          repository: ${{ secrets.NAME_GITHUB }}/app-of-apps
-          ref: main
-          token: ${{ secrets.ACTION_TOKEN }}
-          path: app-of-apps
+    - name: Checkout helm repository
+      uses: actions/checkout@v3
+      with:
+        repository: ${{ secrets.NAME_GITHUB }}/app-of-apps
+        ref: main
+        token: ${{ secrets.ACTION_TOKEN }}
+        path: app-of-apps
 
-      # 7. yq 설치 단계 (바이너리 설치 방식 사용)
-      - name: Setup yq
-        run: |
-          sudo wget https://github.com/mikefarah/yq/releases/download/v4.20.2/yq_linux_amd64 -O /usr/bin/yq
-          sudo chmod +x /usr/bin/yq
+    # 7. yq 설치 단계 (바이너리 설치 방식 사용)
+    - name: Setup yq
+      run: |
+        sudo wget https://github.com/mikefarah/yq/releases/download/v4.20.2/yq_linux_amd64 -O /usr/bin/yq
+        sudo chmod +x /usr/bin/yq
 
-      # 8. Helm values.yaml 파일을 업데이트하는 단계
-      - name: Update Helm values.yaml with new image tag
-        run: |
-          IMAGE_TAG=${{ env.VERSION }}
-          echo "Updating values.yaml with new image tag: $IMAGE_TAG"
-          cd app-of-apps/backend
-          yq eval ".image.tag = \"$IMAGE_TAG\"" -i values.yaml
-          cat values.yaml
+    # 8. Helm values.yaml 파일을 업데이트하는 단계
+    - name: Update Helm values.yaml with new image tag
+      run: |
+        IMAGE_TAG=${{ steps.image.outputs.version }}  # Correctly using the image tag from the previous step
+        echo "Updating values.yaml with new image tag: $IMAGE_TAG"
+        cd app-of-apps/backend
+        yq eval ".image.tag = \"$IMAGE_TAG\"" -i values.yaml
+        cat values.yaml
 
-      # 9. 변경된 values.yaml 파일을 커밋하는 단계
-      - name: Commit updated values.yaml
-        run: |
-          cd app-of-apps/backend
-          git config --global user.email "github-actions@github.com"
-          git config --global user.name "github-actions"
-          git commit -am "Update image tag to $IMAGE_TAG"
-          git push -u origin main
-
-
+    # 9. 변경된 values.yaml 파일을 커밋하는 단계
+    - name: Commit updated values.yaml
+      run: |
+        cd app-of-apps/backend
+        git config --global user.email "github-actions@github.com"
+        git config --global user.name "github-actions"
+        git commit -am "Update image tag to $IMAGE_TAG"
+        git push -u origin main
