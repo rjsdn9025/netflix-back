@@ -69,7 +69,7 @@ router.post('/login', async (req, res) => {
   try {
     const data = await cognitoClient.send(new InitiateAuthCommand(params));
 
-    // JWT 토큰 생성
+    // JWT 토큰 생성zzz
     const token = generateToken(data.AuthenticationResult.AccessToken);
 
     // MySQL에서 사용자 정보 가져오기 (필요한 경우)
